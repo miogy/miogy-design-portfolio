@@ -1,3 +1,4 @@
+/* 버튼 줄 */
 .buttonRow {
   margin: 32px auto 16px;
   display: flex;
@@ -5,38 +6,27 @@
   gap: 24px;
 }
 
-/* 기본 탭 버튼: 연한 그레이 + 흰 글자 */
+/* 기본 탭 버튼 (화이트 배경) */
 .tabButton {
   min-width: 140px;
   padding: 10px 18px;
   border-radius: 999px;
-  border: none;
-  background: #7a7a7a;  /* 회색 */
-  color: #ffffff;       /* 글자 화이트 */
+  border: 1px solid #222222;
+  background: #ffffff;   /* 🔸 기본 흰색 */
+  color: #222222;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
-/* 선택된 탭: 더 진한 색 */
+/* 선택된 탭 (검정 배경 + 흰 글자) */
 .activeTab {
-  background: #000000;  /* 진한 회색/블랙 */
+  background: #222222;
   color: #ffffff;
 }
 
+/* hover 효과 */
 .tabButton:hover {
   transform: translateY(-1px);
-}
-
-/* 모바일 대응 */
-@media (max-width: 768px) {
-  .buttonRow {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .tabButton {
-    width: 80%;
-    margin: 0 auto;
-  }
 }
