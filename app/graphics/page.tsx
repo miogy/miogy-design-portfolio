@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image"; 
+import Image from "next/image";
 import styles from "./graphics.module.css";
+import Slider from "./slider";
+
 import {
   GRAPHIC_FILTERS,
   GRAPHIC_WORKS,
-  MAIN_GRAPHIC_WORKS, // ✅ 추가
+  MAIN_GRAPHIC_WORKS,
   GraphicCategory,
   GraphicWork,
-} from "./graphicsData";
-import Slider from "./slider";
-
+} from "@/data/graphicsData";
 
 type FilterKey = "all" | GraphicCategory;
 
@@ -26,10 +26,12 @@ export default function GraphicsPage() {
   return (
     <main className={styles.main}>
       <div className={styles.pageContainer}>
+        {/* 0. 메인 슬라이드 */}
         <Slider works={MAIN_GRAPHIC_WORKS} />
+
         {/* 1. 상단 소개 영역 */}
         <section className={styles.hero}>
-          <h1 className={styles.title}>Graphic & Textile Works</h1>
+          <h1 className={styles.title}>Graphic &amp; Textile Works</h1>
           <p className={styles.subtitle}>
             의류 그래픽, 텍스타일 패턴, T-shirt 아트워크, 브랜딩 작업까지
             한눈에 볼 수 있는 그래픽 포트폴리오입니다.
@@ -91,7 +93,6 @@ export default function GraphicsPage() {
                     </div>
 
                     <h2 className={styles.cardTitle}>{work.title}</h2>
-
                     <p className={styles.summary}>{work.summary}</p>
 
                     {work.tags.length > 0 && (

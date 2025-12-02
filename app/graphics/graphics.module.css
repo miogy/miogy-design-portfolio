@@ -1,118 +1,48 @@
-/* app/graphics/graphics.module.css */
-
 .main {
-  text-align: center;
   background-color: #ffffff;
 }
 
+/* 공통 컨테이너 – 슬라이드/소개/필터/카드 모두 이 폭 안에서 정렬 */
 .pageContainer {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px 80px;
+  padding: 40px 24px 80px;
 }
 
-/* ===== Slider (메인 작업 슬라이드) ===== */
+/* ---------- 슬라이더 아래 영역 ---------- */
 
-.sliderSection {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-
-.sliderRow {
-  display: flex;
-  gap: 0;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  overflow: hidden;
-}
-
-/* 2개 이미지를 나란히 채우기 */
-.slideItem {
-  position: relative;
-  flex: 1 1 50%;
-  aspect-ratio: 4 / 3; /* 가로형 비율, 필요하면 1 / 1 등으로 변경 */
-  overflow: hidden;
-}
-
-.slideImage {
-  object-fit: cover;
-}
-
-/* 컨트롤 영역 */
-.sliderControls {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-}
-
-.sliderControls button {
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-}
-
-.sliderControls button:hover {
-  text-decoration: underline;
-}
-
-.sliderDivider {
-  color: #999;
-}
-
-/* 모바일에서 비율/여백 조정 */
-@media (max-width: 768px) {
-  .sliderSection {
-    margin-top: 24px;
-    margin-bottom: 24px;
-  }
-
-  .slideItem {
-    aspect-ratio: 1 / 1; /* 모바일에선 정사각형 느낌도 괜찮음 */
-  }
-
-  .sliderControls {
-    font-size: 12px;
-  }
-}
-
-/* 상단 소개 */
 .hero {
-  padding: 80px 0 32px;
+  text-align: center;
+  margin: 32px auto 16px;
 }
 
 .title {
   font-size: 28px;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
   font-size: 14px;
   line-height: 1.7;
-  color: #555;
+  color: #555555;
 }
 
-/* 필터 버튼 줄 */
+/* 필터 탭 */
 .filterRow {
-  margin: 32px auto 24px;
+  margin: 24px auto 16px;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
 .filterButton {
-  padding: 8px 18px;
+  min-width: 120px;
+  padding: 8px 16px;
   border-radius: 999px;
-  border: 1px solid #222;
+  border: 1px solid #222222;
   background: #ffffff;
   color: #222222;
   font-size: 13px;
@@ -130,72 +60,71 @@
   color: #ffffff;
 }
 
-/* 그리드 섹션 */
+/* 카드 그리드 영역 */
 .gridSection {
   margin-top: 8px;
 }
 
-/* 카드 그리드 */
+.emptyText {
+  text-align: center;
+  font-size: 14px;
+  color: #777;
+  margin-top: 40px;
+}
+
 .cardGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
-  text-align: left;
+  margin-top: 24px;
 }
 
-.emptyText {
-  font-size: 14px;
-  color: #888;
-  text-align: center;
-  margin-top: 40px;
-}
-
-/* 카드 */
 .card {
-  border-radius: 18px;
-  overflow: hidden;
-  background: #fafafa;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  display: flex;
-  flex-direction: column;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 16px 16px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
+/* 썸네일 */
 .thumbnailWrapper {
   position: relative;
+  border-radius: 18px;
   overflow: hidden;
+  margin-bottom: 12px;
 }
 
 .thumbnail {
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
   object-fit: cover;
 }
 
-/* 카테고리 칩 */
+/* 카테고리 뱃지 */
 .categoryChip {
   position: absolute;
-  left: 16px;
-  top: 16px;
+  top: 10px;
+  left: 10px;
   padding: 4px 10px;
   border-radius: 999px;
+  font-size: 11px;
   background: rgba(0, 0, 0, 0.7);
   color: #ffffff;
-  font-size: 11px;
 }
 
 /* 카드 본문 */
 .cardBody {
-  padding: 16px 18px 18px;
+  text-align: left;
 }
 
 .metaRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
   font-size: 12px;
   color: #777;
+  margin-bottom: 4px;
 }
 
 .year {
@@ -207,50 +136,39 @@
 }
 
 .cardTitle {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  margin: 4px 0 8px;
+  margin: 4px 0 6px;
 }
 
 .summary {
   font-size: 13px;
-  color: #444;
+  color: #555;
   line-height: 1.7;
-  margin-bottom: 10px;
 }
 
-/* 태그 */
+/* 태그 리스트 */
 .tagList {
+  list-style: none;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  list-style: none;
+  margin: 10px 0 0;
   padding: 0;
-  margin: 0;
 }
 
 .tagItem {
   font-size: 11px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid #e3e3e3;
+  background: #f3f3f3;
 }
 
-/* 반응형 */
-@media (max-width: 1024px) {
-  .cardGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+/* ---------- 모바일 ---------- */
 
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 0 16px 60px;
-  }
-
-  .hero {
-    padding: 48px 0 16px;
+    padding: 24px 16px 60px;
   }
 
   .title {
@@ -261,8 +179,13 @@
     font-size: 13px;
   }
 
+  .filterButton {
+    min-width: auto;
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
   .cardGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: 1fr; /* 한 줄에 한 카드 */
   }
 }

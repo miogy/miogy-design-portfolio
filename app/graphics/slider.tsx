@@ -1,60 +1,68 @@
-// app/graphics/FeaturedSlider.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import styles from "./graphics.module.css";
-import { GraphicWork } from "./graphicsData";
+import styles from "./slider.module.css";
+import type { GraphicWork } from "@/data/graphicsData";
 
-interface FeaturedSliderProps {
+type SliderProps = {
   works: GraphicWork[];
-}
+};
 
-const VISIBLE_COUNT = 2; // 한 번에 보일 아트웍 수
-
-export default function FeaturedSlider({ works }: FeaturedSliderProps) {
+export default function GraphicsSlider({ works }: SliderProps) {
   const [index, setIndex] = useState(0);
+
+  if (!works || works.length === 0) return null;
+
   const total = works.length;
+  const nextIndex = (index + 1) % total;
 
-  if (total === 0) return null;
+  const handleNext = () => setIndex((prev) => (prev + 1) % total);
+  const handlePrev = () => setIndex((prev) => (prev - 1 + total) % total);
 
-  // 현재 인덱스부터 2개씩 보여주기 (루프)
-  const visibleWorks: GraphicWork[] = [];
-  for (let i = 0; i < VISIBLE_COUNT; i++) {
-    const work = works[(index + i) % total];
-    visibleWorks.push(work);
-  }
+  // 자동 재생
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % total);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [total]);
 
-  const handlePrev = () => {
-    setIndex((prev) => (prev - 1 + total) % total);
-  };
-
-  const handleNext = () => {
-    setIndex((prev) => (prev + 1) % total);
-  };
+  const left = works[index];
+  const right = works[nextIndex];
 
   return (
-    <section className={styles.sliderSection}>
-      <div className={styles.sliderRow}>
-        {visibleWorks.map((work) => (
-          <div key={work.id} className={styles.slideItem}>
-            <Image
-              src={work.thumbnail}
-              alt={work.title}
-              fill
-              sizes="50vw"
-              className={styles.slideImage}
-            />
-          </div>
+    <section className={styles.sliderWrapper}>
+      <div className={styles.slideRow}>
+        {[left, right].map((work) => (
+          <figure key={work.id} className={styles.slideItem}>
+            <div className={styles.imageWrapper}>
+              <Image
+                src={work.thumbnail}
+                alt={work.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className={styles.slideImage}
+              />
+            </div>
+          </figure>
         ))}
       </div>
 
-      <div className={styles.sliderControls}>
-        <button type="button" onClick={handlePrev}>
+      <div className={styles.controls}>
+        <button
+          type="button"
+          className={styles.controlButton}
+          onClick={handlePrev}
+        >
           PREV
         </button>
-        <span className={styles.sliderDivider}>|</span>
-        <button type="button" onClick={handleNext}>
+        <span>|</span>
+        <button
+          type="button"
+          className={styles.controlButton}
+          onClick={handleNext}
+        >
           NEXT
         </button>
       </div>
