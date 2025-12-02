@@ -1,0 +1,177 @@
+.main {
+  text-align: center;
+  background-color: #ffffff;  /* 메인 영역도 흰색 */
+}
+
+/* 1. 상단 – 사진*/
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.profileWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.photoCircle {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* 공통 섹션 */
+.section {
+  max-width: 720px;
+  margin: 40px auto 80px;
+  /* ⬇️ 탭별 컨텐츠 높이 최소값: 상황 보고 조절 */
+  min-height: 40vh;
+}
+
+
+.sectionTitle {
+  font-size: 18px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.bodyText {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+/* Career 리스트 */
+.careerList {
+  padding-left: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* Activity 링크 리스트 */
+.activityList {
+  padding-left: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.activityList a {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* 버튼 줄 */
+.buttonRow {
+  margin: 32px auto 16px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* 탭 버튼 공통 스타일 */
+.tabButton {
+  min-width: 140px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;            
+  background: #ffffff;      
+  color: #222222;         
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+/* 선택된 탭 */
+.activeTab {
+  background: #222222;     
+  color: #ffffff;
+}
+
+/* hover */
+.tabButton:hover {
+  transform: translateY(-1px);
+}
+
+/* 탭 컨텐츠 영역 */
+.tabContent {
+  margin: 24px auto 48px;
+  max-width: 720px;
+  text-align: left;
+}
+
+/* Career 리스트 */
+.careerList {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
+
+.careerItem + .careerItem {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.careerPeriod {
+  font-size: 13px;
+  color: #777;
+}
+
+.careerRole {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.careerSummary {
+  font-size: 14px;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+/* Archive 영역 */
+.archiveGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.archiveColumn {
+  font-size: 14px;
+}
+
+.archiveSubtitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.archiveList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.archiveList li {
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .archiveGrid {
+    grid-template-columns: 1fr;  /* 3열 → 1열 */
+    gap: 20px;                   /* 세로 간격 살짝 줄이거나 유지 */
+  }
+
+  .archiveColumn {
+    /* 필요하면 여백 조금 주기 */
+    text-align: left;
+  }
+}
