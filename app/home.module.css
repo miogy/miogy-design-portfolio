@@ -79,7 +79,8 @@
   padding: 10px 18px;
   border-radius: 999px;
   border: none;            
-  background: #ffffff;      
+  background: #ffffff;
+  border: 1px solid #222222; 
   color: #222222;         
   font-size: 13px;
   font-weight: 600;
@@ -124,13 +125,14 @@
 }
 
 .careerRole {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   margin-top: 2px;
 }
 
 .careerSummary {
   font-size: 14px;
+  color: #666;
   margin-top: 4px;
   line-height: 1.6;
 }

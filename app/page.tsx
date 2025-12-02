@@ -103,15 +103,17 @@ export default function Home() {
         <li key={idx} className={styles.careerItem}>
           {/* 기간 */}
           <p className={styles.careerPeriod}>{item.period}</p>
-
           {/* 직무명 + 회사명 */}
           <p className={styles.careerRole}>{item.role}</p>
           <p className={styles.careerCompany}>{item.company}</p>
-
+          <p>&nbsp;</p>
           {/* 여러 문단 summary */}
           <div className={styles.careerSummary}>
             {item.summary.map((line, i) => (
-              <p key={i}>{line}</p>
+              <p key={idx} className={styles.summaryLine}>
+      {line === "" ? "\u00A0" : line} 
+      {/* 빈 문자열이면 &nbsp; 로 빈 줄 유지 */}
+    </p>
             ))}
           </div>
         </li>
