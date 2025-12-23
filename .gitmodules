@@ -1,0 +1,4 @@
+[submodule "data-modules"]
+	path = data-modules
+	url = https://github.com/miogy/artworks-contents.git
+	branch = main
