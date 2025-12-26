@@ -1,37 +1,61 @@
 // app/work/[slug]/page.tsx
-import { WORKS } from "@/lib/mockData";
 import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { getWorkBySlug, toWorkItem } from "@/lib/works";
 
-export default function WorkDetailPage({ params }: { params: { slug: string } }) {
-  const work = WORKS.find((w) => w.slug === params.slug);
+export default async function WorkDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }> | { slug: string };
+}) {
+  const { slug } = await Promise.resolve(params);
 
-  if (!work) {
-    return (
-      <main className="mx-auto w-full max-w-6xl px-5 py-16">
-        <h1 className="text-2xl font-semibold text-[#222]">Not found</h1>
-        <p className="mt-3 text-sm text-[#444]/80">This work does not exist yet.</p>
-        <Link href="/work" className="mt-6 inline-flex text-sm font-medium text-[#222]">
-          <span className="border-b border-[#222]/70 pb-0.5 hover:border-[#222]">Back to Work</span>
-        </Link>
-      </main>
-    );
-  }
+  const raw = await getWorkBySlug(slug);
+  if (!raw) return notFound();
+
+  const work = toWorkItem(raw);
+
+  const hasImage = typeof work.thumb === "string" && work.thumb.trim().length > 0;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-16">
-      <p className="text-xs tracking-widest text-[#444]/70">{work.category.toUpperCase()}</p>
+      <p className="text-xs tracking-widest text-[#444]/70">
+        {String(work.category).toUpperCase()}
+      </p>
+
       <h1 className="mt-2 text-2xl font-semibold text-[#222]">{work.title}</h1>
+
       <p className="mt-2 text-sm text-[#444]/80">{work.year}</p>
+
+      {/* ✅ 이미지: year와 summary 사이 */}
+      <div className="mt-8 overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white">
+        <div className="relative w-full aspect-[16/10] bg-[#f3f3f3]">
+          {hasImage ? (
+            <Image
+              src={work.thumb as string}
+              alt={work.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 960px"
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs tracking-widest text-[#444]/60">NO IMAGE</span>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mt-8 rounded-2xl border border-[#e5e5e5] bg-white p-6">
         <p className="text-sm leading-relaxed text-[#444]/85">{work.summary}</p>
-        <p className="mt-4 text-xs text-[#444]/60">
-          (Next: connect real images + full description from artworks-contents)
-        </p>
       </div>
 
       <Link href="/work" className="mt-8 inline-flex text-sm font-medium text-[#222]">
-        <span className="border-b border-[#222]/70 pb-0.5 hover:border-[#222]">Back to Work</span>
+        <span className="border-b border-[#222]/70 pb-0.5 hover:border-[#222]">
+          Back to Work
+        </span>
       </Link>
     </main>
   );

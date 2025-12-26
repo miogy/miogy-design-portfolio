@@ -4,37 +4,35 @@ import Image from "next/image";
 import type { WorkItem } from "@/lib/types";
 
 export default function WorkCard({ item }: { item: WorkItem }) {
+  const hasImage = typeof item.thumb === "string" && item.thumb.trim().length > 0;
+
   return (
     <Link
       href={`/work/${item.slug}`}
-      className="group overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white"
+      className="group block overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white"
     >
-      <div className="relative aspect-[4/3] w-full bg-[#f3f3f3]">
-        {item.thumb ? (
+      <div className="relative w-full bg-[#f3f3f3] aspect-[4/5]">
+        {hasImage ? (
           <Image
-            src={item.thumb}
+            src={item.thumb as string}
             alt={item.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, 33vw"
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-b from-[#f6f6f6] to-[#ededed]" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs tracking-widest text-[#444]/60">NO IMAGE</span>
+          </div>
         )}
       </div>
 
       <div className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-sm font-semibold text-[#222]">{item.title}</h3>
-          <span className="text-xs text-[#444]/70">{item.year}</span>
-        </div>
-        <p className="mt-2 line-clamp-2 text-sm text-[#444]/80">{item.summary}</p>
-
-        <div className="mt-3 text-sm font-medium text-[#222]">
-          <span className="border-b border-[#222]/40 pb-0.5 group-hover:border-[#222]">
-            View details
-          </span>
-        </div>
+        <p className="text-[11px] tracking-widest text-[#444]/70">
+          {String(item.category).toUpperCase()}
+        </p>
+        <h3 className="mt-2 text-sm font-semibold text-[#222]">{item.title}</h3>
+        <p className="mt-1 text-xs text-[#444]/70">{item.year}</p>
       </div>
     </Link>
   );

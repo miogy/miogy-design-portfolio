@@ -1,6 +1,8 @@
-// lib/works.ts
 import fs from "node:fs/promises";
 import path from "node:path";
+
+// getWorks()가 반환하는 Work[]를 WorkGrid에서 요구하는 WorkItem[]로 변환
+import type { WorkItem, WorkCategory } from "@/lib/types";
 
 export type Work = {
   id?: string;
@@ -9,11 +11,11 @@ export type Work = {
   description?: string;
   year?: number | string;
   category?: string; // "inhouse" | "promotion" | "artistIP" | "trade" | "archive" ...
-  thumbnail?: string; // ex) "/img/works/xxx.jpg"
-  cover?: string; // optional
-  featured?: boolean; // optional (대표작 플래그)
-  hero?: boolean; // optional
-  heroRank?: number; // optional
+  thumbnail?: string; // ex) "/img/2025/xxx.png"
+  cover?: string;
+  featured?: boolean;
+  hero?: boolean;
+  heroRank?: number;
 };
 
 export type HeroItem = {
@@ -35,7 +37,6 @@ async function fileExists(p: string) {
 
 async function resolveWorksJsonPath() {
   const cwd = process.cwd();
-
   const candidates = [
     path.join(cwd, "data-modules", "works.json"),
     path.join(cwd, "data-modules", "data-modules", "works.json"), // 현재 로그상 이 케이스
@@ -46,6 +47,7 @@ async function resolveWorksJsonPath() {
   for (const p of candidates) {
     if (await fileExists(p)) return p;
   }
+
   throw new Error(
     `works.json not found. Tried:\n${candidates.map((c) => `- ${c}`).join("\n")}`
   );
@@ -57,9 +59,19 @@ export async function getWorks(): Promise<Work[]> {
   const json = JSON.parse(raw);
 
   // works.json 형태가 { works: [...] } / [...] 둘 다 대응
-  const list: Work[] = Array.isArray(json) ? json : Array.isArray(json?.works) ? json.works : [];
+  const list: Work[] = Array.isArray(json)
+    ? json
+    : Array.isArray(json?.works)
+      ? json.works
+      : [];
 
   return list;
+}
+
+/** ✅ 상세페이지용: slug로 1개 찾기 */
+export async function getWorkBySlug(slug: string): Promise<Work | null> {
+  const works = await getWorks();
+  return works.find((w) => String(w.slug || w.id || "") === slug) ?? null;
 }
 
 function normalizeCategory(c?: string) {
@@ -73,7 +85,8 @@ function normalizeCategory(c?: string) {
 }
 
 function toNumberYear(y: Work["year"]) {
-  const n = typeof y === "number" ? y : Number(String(y || "").replace(/[^\d]/g, ""));
+  const n =
+    typeof y === "number" ? y : Number(String(y || "").replace(/[^\d]/g, ""));
   return Number.isFinite(n) ? n : 0;
 }
 
@@ -89,14 +102,14 @@ function pickOnePerCategory(works: Work[], category: string) {
   if (featured) return featured;
 
   // 2) 없으면 최신연도 우선
-  return filtered
-    .slice()
-    .sort((a, b) => toNumberYear(b.year) - toNumberYear(a.year))[0];
+  return filtered.slice().sort((a, b) => toNumberYear(b.year) - toNumberYear(a.year))[0];
 }
 
 export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
   const order = ["inhouse", "promotion", "artistIP"]; // 홈 hero에 보여줄 3개 카테고리
-  const picked = order.map((cat) => pickOnePerCategory(works, cat)).filter(Boolean) as Work[];
+  const picked = order
+    .map((cat) => pickOnePerCategory(works, cat))
+    .filter(Boolean) as Work[];
 
   // fallback: 데이터가 부족하면 그냥 상위 3개
   const final = picked.length ? picked : works.slice(0, 3);
@@ -107,7 +120,9 @@ export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
     const imageSrc = w.cover || w.thumbnail || null;
 
     return {
-      key: String(w.id || w.slug || `${normalizeCategory(w.category)}-${toNumberYear(w.year)}-${idx}`),
+      key: String(
+        w.id || w.slug || `${normalizeCategory(w.category)}-${toNumberYear(w.year)}-${idx}`
+      ),
       href,
       title:
         w.title ||
@@ -121,9 +136,6 @@ export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
     };
   });
 }
-
-// getWorks()가 반환하는 Work[]를 WorkGrid에서 요구하는 WorkItem[]로 변환
-import type { WorkItem, WorkCategory } from "@/lib/types";
 
 function toWorkCategory(c?: string): WorkCategory {
   const cat = normalizeCategory(c); // "inhouse" | "promotion" | "artistIP" | "trade" | "archive" | ...
