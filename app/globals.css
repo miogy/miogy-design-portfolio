@@ -1,50 +1,9 @@
-@import "tailwindcss";
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-/* 태블릿 / PC (모바일 초과)에서만 여백 10% 더 주기 */
-@media (min-width: 768px) {
-  .page-container {
-    padding-top: clamp(120px, 19vh, 185px);
-  }
-}
-html {
-  overflow-y: scroll;   /* 스크롤 영영확보 - 보이는 화면에 따라 흔들림 현상 */
-}
-
-/* 전체 기본 스타일 */
+html,
 body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR",
-    sans-serif;
-  background-color: #ffffff;  /* 바닥을 흰색으로 */
-  color: #000000;
-}
-
-/* Header 밑에 내용이 눌리지 않도록 위쪽 여백 주기 */
-.page-container {
-  max-width: 1100px;
-  margin: 0 auto;
-
-  /* 전체 기본 여백을 약 20% 확대 */
-  padding: clamp(108px, 17vh, 168px) 24px 80px;
-
-  background-color: #ffffff;
-  box-sizing: border-box;
+  background: #fff;
 }
