@@ -1,94 +1,124 @@
-// 대표 아이템 출력
-import fs from "node:fs";
+// lib/works.ts
+import fs from "node:fs/promises";
 import path from "node:path";
 
-export type WorkCategory = "inhouse" | "promotion" | "artistIp" | "trade" | "archive";
-export type HomeHeroKey = "inhouse" | "promotion" | "artistIp";
-
 export type Work = {
-  slug: string;
-  title: string;
+  id?: string;
+  slug?: string;
+  title?: string;
   description?: string;
-  category: WorkCategory;
-  year?: number;
-  thumbnail?: string; // public 기준 URL 권장: "/img/xxx.png" or "/placeholder/hero-1.jpg"
-  featured?: {
-    homeHeroKey?: HomeHeroKey;
-  };
+  year?: number | string;
+  category?: string; // "inhouse" | "promotion" | "artistIP" | "trade" | "archive" ...
+  thumbnail?: string; // ex) "/img/works/xxx.jpg"
+  cover?: string; // optional
+  featured?: boolean; // optional (대표작 플래그)
+  hero?: boolean; // optional
+  heroRank?: number; // optional
 };
 
 export type HeroItem = {
+  key: string;
   href: string;
   title: string;
   description: string;
-  imageSrc?: string;
+  imageSrc?: string | null;
 };
 
-// 프로젝트에서 works.json의 실제 경로가 다르면 여기만 바꾸면 됨
-// 예: "data-modules/content/works/works.json" or "data-modules/works.json"
-const WORKS_JSON_RELATIVE_PATH =
-  process.env.WORKS_JSON_PATH ?? "data-modules/content/works/works.json";
-
-function resolveWorksJsonPath() {
-  return path.join(process.cwd(), WORKS_JSON_RELATIVE_PATH);
-}
-
-export function loadWorks(): Work[] {
-  const filePath = resolveWorksJsonPath();
-
-  if (!fs.existsSync(filePath)) {
-    // 파일이 없으면 빈 배열 반환 (빌드/런타임 크래시 방지)
-    return [];
-  }
-
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const parsed = JSON.parse(raw);
-
-  // works.json이 { works: [...] } 형태일 가능성도 커버
-  const works: unknown = Array.isArray(parsed) ? parsed : parsed?.works;
-
-  if (!Array.isArray(works)) return [];
-
-  return works as Work[];
-}
-
-function heroLabelByKey(key: HomeHeroKey) {
-  switch (key) {
-    case "inhouse":
-      return "In-house / Textile Design";
-    case "promotion":
-      return "Promotion / Key Visual";
-    case "artistIp":
-      return "Artist IP / Graphic System";
+async function fileExists(p: string) {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
   }
 }
 
-function pickFirstByHeroKey(works: Work[], key: HomeHeroKey): Work | undefined {
-  return works.find((w) => w.featured?.homeHeroKey === key);
+async function resolveWorksJsonPath() {
+  const cwd = process.cwd();
+
+  const candidates = [
+    path.join(cwd, "data-modules", "works.json"),
+    path.join(cwd, "data-modules", "data-modules", "works.json"), // 현재 로그상 이 케이스
+    path.join(cwd, "data-modules", "content", "works.json"),
+    path.join(cwd, "data-modules", "data", "works.json"),
+  ];
+
+  for (const p of candidates) {
+    if (await fileExists(p)) return p;
+  }
+  throw new Error(
+    `works.json not found. Tried:\n${candidates.map((c) => `- ${c}`).join("\n")}`
+  );
 }
 
-export function getHomeHeroItems(works: Work[]): HeroItem[] {
-  const keys: HomeHeroKey[] = ["inhouse", "promotion", "artistIp"];
+export async function getWorks(): Promise<Work[]> {
+  const worksPath = await resolveWorksJsonPath();
+  const raw = await fs.readFile(worksPath, "utf-8");
+  const json = JSON.parse(raw);
 
-  const picked = keys.map((key) => {
-    const w = pickFirstByHeroKey(works, key);
-    if (!w) {
-      // fallback (데이터 아직 없을 때도 UI 유지)
-      return {
-        href: "/work",
-        title: heroLabelByKey(key),
-        description: "Coming soon.",
-        imageSrc: "/placeholder/hero-1.jpg",
-      } satisfies HeroItem;
-    }
+  // works.json 형태가 { works: [...] } / [...] 둘 다 대응
+  const list: Work[] = Array.isArray(json) ? json : Array.isArray(json?.works) ? json.works : [];
+
+  return list;
+}
+
+function normalizeCategory(c?: string) {
+  const v = (c || "").toLowerCase();
+  if (v.includes("in") || v.includes("house")) return "inhouse";
+  if (v.includes("promo") || v.includes("key")) return "promotion";
+  if (v.includes("ip") || v.includes("artist")) return "artistIP";
+  if (v.includes("trade")) return "trade";
+  if (v.includes("arch")) return "archive";
+  return v || "etc";
+}
+
+function toNumberYear(y: Work["year"]) {
+  const n = typeof y === "number" ? y : Number(String(y || "").replace(/[^\d]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function pickOnePerCategory(works: Work[], category: string) {
+  const filtered = works.filter((w) => normalizeCategory(w.category) === category);
+
+  // 1) featured/hero/heroRank 우선
+  const featured = filtered
+    .slice()
+    .sort((a, b) => (a.heroRank ?? 999) - (b.heroRank ?? 999))
+    .find((w) => w.featured || w.hero || typeof w.heroRank === "number");
+
+  if (featured) return featured;
+
+  // 2) 없으면 최신연도 우선
+  return filtered
+    .slice()
+    .sort((a, b) => toNumberYear(b.year) - toNumberYear(a.year))[0];
+}
+
+export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
+  const order = ["inhouse", "promotion", "artistIP"]; // 홈 hero에 보여줄 3개 카테고리
+  const picked = order.map((cat) => pickOnePerCategory(works, cat)).filter(Boolean) as Work[];
+
+  // fallback: 데이터가 부족하면 그냥 상위 3개
+  const final = picked.length ? picked : works.slice(0, 3);
+
+  return final.map((w, idx) => {
+    const slug = w.slug || w.id || `work-${idx}`;
+    const href = `/work/${slug}`;
+    const imageSrc = w.cover || w.thumbnail || null;
 
     return {
-      href: `/work/${w.slug}`,
-      title: heroLabelByKey(key),
-      description: w.description ?? w.title,
-      imageSrc: w.thumbnail,
-    } satisfies HeroItem;
+      key: String(w.id || w.slug || `${normalizeCategory(w.category)}-${toNumberYear(w.year)}-${idx}`),
+      href,
+      title:
+        w.title ||
+        (normalizeCategory(w.category) === "inhouse"
+          ? "In-house / Textile Design"
+          : normalizeCategory(w.category) === "promotion"
+            ? "Promotion / Key Visual"
+            : "Artist IP / Graphic System"),
+      description: w.description || "Coming soon.",
+      imageSrc,
+    };
   });
-
-  return picked;
 }
+

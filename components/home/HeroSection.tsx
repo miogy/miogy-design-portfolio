@@ -1,154 +1,116 @@
 // components/home/HeroSection.tsx
-import Link from "next/link";
-import Image from "next/image";
+"use client";
 
-type HeroCardItem = {
+import Link from "next/link";
+
+export type HeroServiceItem = {
+  key?: string;
   href: string;
   title: string;
   description: string;
-  imageSrc?: string;
+  imageSrc?: string | null;
 };
 
-function ServiceCard({ item }: { item: HeroCardItem }) {
-  return (
-    <Link href={item.href} className="group block h-full w-full bg-white">
-      {/* 4:5 ratio (reference-like) */}
-      <div className="relative aspect-[4/5] w-full bg-[#f3f3f3]">
-        {item.imageSrc ? (
-          <Image
-            src={item.imageSrc}
-            alt={item.title}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 33vw"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-b from-[#f6f6f6] to-[#ededed]" />
-        )}
+type Props = {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  ctaLabel: string;
+  ctaHref: string;
+  items: HeroServiceItem[];
+};
 
-        {/* bottom scrim */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+export default function HeroServicesSection({
+  eyebrow,
+  title,
+  intro,
+  ctaLabel,
+  ctaHref,
+  items,
+}: Props) {
+  const list = items || [];
+
+  return (
+    <section className="mx-auto w-full max-w-6xl px-5 pb-10 pt-12">
+      <div className="pb-10 text-center">
+        <p className="text-xs tracking-[0.3em] text-[#444]/70">{eyebrow}</p>
+        <h1 className="mt-3 text-4xl font-semibold text-[#222]">{title}</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[#444]/80">
+          {intro}
+        </p>
+        <Link href={ctaHref} className="mt-6 inline-flex text-sm font-medium text-[#222]">
+          <span className="border-b border-[#222]/70 pb-0.5 hover:border-[#222]">{ctaLabel}</span>
+        </Link>
+      </div>
+
+      {/* Cards */}
+      <div className="mt-10">
+        {/* Desktop: 3 columns */}
+        <div className="hidden md:grid md:grid-cols-3 md:gap-0">
+          {list.map((item, idx) => (
+            <div
+              key={item.key || item.href || String(idx)}
+              className="min-w-0 border border-[#e5e5e5] bg-white"
+            >
+              <HeroCard item={item} />
+            </div>
+          ))}
         </div>
 
-        {/* bottom overlay text */}
-        <div className="absolute inset-x-0 bottom-0 px-7 pb-9 pt-6 text-center text-white md:px-9 md:pb-10">
-          <h3 className="text-lg font-semibold leading-snug md:text-xl">{item.title}</h3>
+        {/* Mobile: one-by-one scroll */}
+        <div className="md:hidden">
+          <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+            {list.map((item, idx) => (
+              <div key={item.key || item.href || String(idx)} className="snap-center" style={{ minWidth: "86%" }}>
+                <div className="border border-[#e5e5e5] bg-white">
+                  <HeroCard item={item} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-white/90 md:text-[15px]">
-            {item.description}
-          </p>
+function HeroCard({ item }: { item: HeroServiceItem }) {
+  const hasImage = typeof item.imageSrc === "string" && item.imageSrc.trim().length > 0;
 
-          <div className="mt-6 inline-flex items-center justify-center text-sm font-medium">
-            <span className="border-b border-white/80 pb-0.5 group-hover:border-white">
-              Discover
-            </span>
+  return (
+    <Link href={item.href} className="group block">
+      {/* ✅ 비율 스왑 + ✅ height 0 방지 + ✅ min/max 높이로 안정화 */}
+      <div
+        className={[
+          "relative w-full overflow-hidden bg-[#f3f3f3]",
+          "aspect-[4/5] md:aspect-[3/4]",
+          "min-h-[280px] md:min-h-[320px]",
+          "max-h-[560px] md:max-h-[520px]",
+        ].join(" ")}
+      >
+        {hasImage ? (
+          <img
+            src={item.imageSrc!}
+            alt={item.title}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              // 이미지 404여도 레이아웃 유지 + 깨진 아이콘 숨김
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+          />
+        ) : null}
+
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/55" />
+
+        <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+          <h3 className="text-xl font-semibold leading-snug">{item.title}</h3>
+          <p className="mt-3 text-sm leading-relaxed text-white/90">{item.description}</p>
+          <div className="mt-5 inline-flex text-sm font-semibold">
+            <span className="border-b border-white/70 pb-0.5 group-hover:border-white">Discover</span>
           </div>
         </div>
       </div>
     </Link>
-  );
-}
-
-export default function HeroServicesSection({
-  eyebrow = "WELCOME!",
-  title = "Miogy Portfolio.",
-  intro = "A design studio-style portfolio with calm white UI. I work across textile prints, promotions, artist IP, and learning archives.",
-  ctaLabel = "View details",
-  ctaHref = "/about",
-  items,
-}: {
-  eyebrow?: string;
-  title?: string;
-  intro?: string;
-  ctaLabel?: string;
-  ctaHref?: string;
-  items: HeroCardItem[];
-}) {
-  const list = items.slice(0, 3);
-
-  return (
-    <section className="w-full bg-white text-[#444]">
-      {/* Text block */}
-      <div className="mx-auto w-full max-w-6xl px-5 pt-14">
-        <div className="flex flex-col items-center text-center">
-          <p className="text-xs tracking-widest text-[#444]/70">{eyebrow}</p>
-          <h1 className="mt-3 text-2xl font-semibold text-[#222] md:text-3xl">{title}</h1>
-
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#444]/80 md:text-[15px]">
-            {intro}
-          </p>
-
-          <Link href={ctaHref} className="mt-5 text-sm font-medium text-[#222]">
-            <span className="border-b border-[#222]/70 pb-0.5 hover:border-[#222]">
-              {ctaLabel}
-            </span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Cards */}
-      <div className="mx-auto mt-10 w-full px-5">
-        {/* Desktop/tablet: centered row with separators, responsive widths */}
-        <div className="hidden md:block">
-          <div className="mx-auto w-full max-w-6xl overflow-hidden border border-[#e5e5e5] bg-white">
-            <div className="grid grid-cols-3">
-              {list.map((item, idx) => (
-                <div
-                  // key={item.href}
-                  key={`${item.href}-${idx}`}
-                  className={[
-                    "min-w-0",
-                    idx !== list.length - 1 ? "border-r border-[#e5e5e5]" : "",
-                  ].join(" ")}
-                >
-                  <ServiceCard item={item} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile: horizontal scroll, snap one-by-one */}
-        <div className="md:hidden">
-          <div className="overflow-hidden border border-[#e5e5e5] bg-white">
-            <div
-              className={[
-                "flex w-full gap-0 overflow-x-auto",
-                "snap-x snap-mandatory",
-                "scroll-px-5",
-              ].join(" ")}
-              style={{
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              {list.map((item, idx) => (
-                <div
-                  // key={item.href}
-                  key={`${item.href}-${idx}`}
-                  className={[
-                    "snap-center",
-                    "shrink-0",
-                    "w-[88%]",
-                    "border-r border-[#e5e5e5]",
-                    idx === list.length - 1 ? "border-r-0" : "",
-                  ].join(" ")}
-                >
-                  <ServiceCard item={item} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* optional small hint spacing */}
-          <p className="mt-3 text-center text-xs text-[#444]/60">
-            Swipe →
-          </p>
-        </div>
-
-        {/* <div className="mx-auto mt-10 max-w-6xl border-b border-[#e5e5e5]" /> */}
-      </div>
-    </section>
   );
 }

@@ -1,24 +1,34 @@
 // app/page.tsx
 import HeroServicesSection from "@/components/home/HeroSection";
 import HomeTabsSection from "@/components/home/HomeTabsSection";
-import { getHomeHeroItems, loadWorks } from "@/lib/works";
+import { buildHeroItemsFromWorks, getWorks } from "@/lib/works";
 
-export default function Page() {
-  const works = loadWorks();
-  const heroItems = getHomeHeroItems(works);
+export default async function Page() {
+  const works = await getWorks();
+  const heroItems = buildHeroItemsFromWorks(works);
+
+  console.log("[home] works loaded:", works.length);
 
   return (
     <main className="bg-white text-[#444]">
       <HeroServicesSection
         eyebrow="WELCOME!"
         title="Miogy Portfolio."
-        intro="A design studio-style portfolio with calm white UI. I work across textile prints, brand graphics, and web presentation."
+        intro="Fashion Graphics | Textile Design | Web/App"
         ctaLabel="View details"
         ctaHref="/about"
-        items={heroItems}
+        items={heroItems.map((it) => ({
+          key: it.key,
+          href: it.href,
+          title: it.title,
+          description: it.description,
+          imageSrc: it.imageSrc ?? null, // works.json에서 thumbnail/cover가 들어오면 자동 적용
+        }))}
       />
+
       <HomeTabsSection />
     </main>
   );
 }
+
 
