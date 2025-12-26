@@ -1,6 +1,6 @@
 // components/home/HeroSection.tsx
 "use client";
-
+// client -> 터미널에서 public/img 만들기
 import Link from "next/link";
 
 export type HeroServiceItem = {
