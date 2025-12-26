@@ -122,3 +122,35 @@ export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
   });
 }
 
+// getWorks()가 반환하는 Work[]를 WorkGrid에서 요구하는 WorkItem[]로 변환
+import type { WorkItem, WorkCategory } from "@/lib/types";
+
+function toWorkCategory(c?: string): WorkCategory {
+  const cat = normalizeCategory(c); // "inhouse" | "promotion" | "artistIP" | "trade" | "archive" | ...
+  if (cat === "inhouse") return "in-house";
+  if (cat === "promotion") return "promotion";
+  if (cat === "artistIP") return "artist-ip";
+  if (cat === "trade") return "trade";
+  if (cat === "archive") return "archive";
+  return "archive"; // ✅ types.ts에 없는 값(etc 등)은 안전하게 archive로 폴백
+}
+
+export function toWorkItem(w: Work, idx = 0): WorkItem {
+  const slug =
+    (w.slug && String(w.slug).trim()) ||
+    (w.id && String(w.id).trim()) ||
+    `work-${idx}`;
+
+  return {
+    slug,
+    title: w.title ? String(w.title) : "Untitled",
+    year: toNumberYear(w.year) || new Date().getFullYear(),
+    category: toWorkCategory(w.category),
+    summary: w.description ? String(w.description) : "",
+    thumb: w.thumbnail || w.cover || undefined,
+  };
+}
+
+export function toWorkItems(works: Work[]): WorkItem[] {
+  return works.map((w, i) => toWorkItem(w, i));
+}
