@@ -164,18 +164,7 @@ export default function Footer() {
                   </svg>
                 </IconButton>
 
-                <IconButton label="X" href="https://x.com/">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M4 4l16 16M20 4L4 20"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </IconButton>
-
-                <IconButton label="Behance" href="https://www.behance.net/">
+                {/* <IconButton label="Behance" href="https://www.behance.net/">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M4 6h7a3 3 0 0 1 0 6H4V6Z"
@@ -194,9 +183,9 @@ export default function Footer() {
                       strokeLinecap="round"
                     />
                   </svg>
-                </IconButton>
+                </IconButton> */}
 
-                <IconButton label="Pinterest" href="https://www.pinterest.com/">
+                <IconButton label="Pinterest" href="https://pin.it/4ISYdUULC">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12c0 4.2 2.6 7.8 6.3 9.2"
@@ -217,10 +206,58 @@ export default function Footer() {
                     />
                   </svg>
                 </IconButton>
+
+                <IconButton label="PDF Portfolio" href="https://www.canva.com/design/DAG6jrOubZQ/tOk8oz6gF2D_bmeAY0Gw-g/edit?utm_content=DAG6jrOubZQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    {/* File outline */}
+                    <path
+                      d="M14 2H7a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8l-6-6z"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinejoin="round"
+                    />
+                    {/* Folded corner */}
+                    <path
+                      d="M14 2v6h6"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinejoin="round"
+                    />
+
+                    {/* PDF badge */}
+                    <rect
+                      x="6.2"
+                      y="13.3"
+                      width="11.6"
+                      height="6.2"
+                      rx="1.2"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                    />
+                    <text
+                      x="12"
+                      y="17.7"
+                      textAnchor="middle"
+                      fontSize="3.8"
+                      fontFamily="system-ui, -apple-system, Segoe UI, Roboto, Arial"
+                      fill="currentColor"
+                    >
+                      PDF
+                    </text>
+                  </svg>
+                </IconButton>
+
+
               </div>
 
               <p className="mt-4 text-xs text-[#444]/70">
-                Thank you for visiting. Let’s make something beautiful.
+                {/* Thank you for visiting. Let’s make something beautiful. */}
               </p>
             </div>
           </div>
@@ -234,7 +271,7 @@ export default function Footer() {
 
           <div className="mt-6 flex flex-col gap-2 text-xs text-[#444]/70 md:flex-row md:items-center md:justify-between">
             <p>© MIOGY 2025 · All rights reserved</p>
-            <p>SPAIN/SPANISH (layout reference)</p>
+            <p>KOREA</p>
           </div>
         </div>
       </div>
