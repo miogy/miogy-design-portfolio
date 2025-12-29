@@ -1,18 +1,36 @@
+// lib/works.ts
 import fs from "node:fs/promises";
 import path from "node:path";
 
 // getWorks()가 반환하는 Work[]를 WorkGrid에서 요구하는 WorkItem[]로 변환
 import type { WorkItem, WorkCategory } from "@/lib/types";
 
+/** 상세 content 블록 타입 */
+export type WorkContentBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "bullets"; items: string[] };
+
+/** 외부 링크 타입 */
+export type WorkLink = { label: string; url: string };
+
 export type Work = {
   id?: string;
-  slug?: string;
+  slug?: string; // 라우팅/키: 고유해야 함
   title?: string;
-  description?: string;
+  description?: string; // 리스트용 짧은 설명
   year?: number | string;
-  category?: string; // "inhouse" | "promotion" | "artistIP" | "trade" | "archive" ...
-  thumbnail?: string; // ex) "/img/2025/xxx.png"
-  cover?: string;
+  category?: string; // "in-house" | "promotion" | "artistIP" | "trade" | "archive"
+
+  thumbnail?: string; // 리스트 카드 이미지
+  cover?: string; // 상세 상단 대표 이미지
+  gallery?: string[]; // 상세 갤러리 이미지 배열
+  content?: WorkContentBlock[]; // 상세 본문 블록
+
+  roles?: string[];
+  tools?: string[];
+  client?: string;
+  links?: WorkLink[];
+
   featured?: boolean;
   hero?: boolean;
   heroRank?: number;
@@ -68,7 +86,7 @@ export async function getWorks(): Promise<Work[]> {
   return list;
 }
 
-/** ✅ 상세페이지용: slug로 1개 찾기 */
+/** 상세페이지용: slug로 1개 찾기 */
 export async function getWorkBySlug(slug: string): Promise<Work | null> {
   const works = await getWorks();
   return works.find((w) => String(w.slug || w.id || "") === slug) ?? null;
@@ -98,11 +116,12 @@ function pickOnePerCategory(works: Work[], category: string) {
     .slice()
     .sort((a, b) => (a.heroRank ?? 999) - (b.heroRank ?? 999))
     .find((w) => w.featured || w.hero || typeof w.heroRank === "number");
-
   if (featured) return featured;
 
   // 2) 없으면 최신연도 우선
-  return filtered.slice().sort((a, b) => toNumberYear(b.year) - toNumberYear(a.year))[0];
+  return filtered
+    .slice()
+    .sort((a, b) => toNumberYear(b.year) - toNumberYear(a.year))[0];
 }
 
 export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
@@ -138,13 +157,13 @@ export function buildHeroItemsFromWorks(works: Work[]): HeroItem[] {
 }
 
 function toWorkCategory(c?: string): WorkCategory {
-  const cat = normalizeCategory(c); // "inhouse" | "promotion" | "artistIP" | "trade" | "archive" | ...
+  const cat = normalizeCategory(c);
   if (cat === "inhouse") return "in-house";
   if (cat === "promotion") return "promotion";
   if (cat === "artistIP") return "artist-ip";
   if (cat === "trade") return "trade";
   if (cat === "archive") return "archive";
-  return "archive"; // ✅ types.ts에 없는 값(etc 등)은 안전하게 archive로 폴백
+  return "archive";
 }
 
 export function toWorkItem(w: Work, idx = 0): WorkItem {
@@ -165,4 +184,18 @@ export function toWorkItem(w: Work, idx = 0): WorkItem {
 
 export function toWorkItems(works: Work[]): WorkItem[] {
   return works.map((w, i) => toWorkItem(w, i));
+}
+
+/** 상세 렌더링에서 쓰기 좋은 “정리” 유틸 (선택) */
+export function cleanStringArray(arr?: string[]) {
+  return (arr ?? []).map((s) => String(s).trim()).filter(Boolean);
+}
+
+export function cleanLinks(links?: WorkLink[]) {
+  return (links ?? [])
+    .map((l) => ({
+      label: String(l?.label ?? "").trim(),
+      url: String(l?.url ?? "").trim(),
+    }))
+    .filter((l) => l.label && l.url);
 }
