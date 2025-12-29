@@ -16,7 +16,7 @@ export default async function Page() {
         title="Miogy Portfolio."
         intro="Fashion Graphics | Textile Design | Web/App"
         ctaLabel="View details"
-        ctaHref="/about"
+        ctaHref="/work"
         items={heroItems.map((it) => ({
           key: it.key,
           href: it.href,
