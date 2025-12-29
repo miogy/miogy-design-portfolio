@@ -13,6 +13,7 @@ export type WorkContentBlock =
 /** 외부 링크 타입 */
 export type WorkLink = { label: string; url: string };
 
+// 서브모듈 타입정의
 export type Work = {
   id?: string;
   slug?: string; // 라우팅/키: 고유해야 함
@@ -20,12 +21,11 @@ export type Work = {
   description?: string; // 리스트용 짧은 설명
   year?: number | string;
   category?: string; // "in-house" | "promotion" | "artistIP" | "trade" | "archive"
-
   thumbnail?: string; // 리스트 카드 이미지
   cover?: string; // 상세 상단 대표 이미지
   gallery?: string[]; // 상세 갤러리 이미지 배열
+  mockups?: string[];
   content?: WorkContentBlock[]; // 상세 본문 블록
-
   roles?: string[];
   tools?: string[];
   client?: string;

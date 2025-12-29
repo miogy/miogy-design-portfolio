@@ -123,6 +123,36 @@ export default async function WorkDetailPage({
         </section>
       ) : null}
 
+      {/* ✅ MOCKUPS (optional) */}
+{(() => {
+  const mockups = (raw.mockups ?? [])
+    .map((s) => String(s).trim())
+    .filter(Boolean);
+
+  if (!mockups.length) return null;
+
+  return (
+    <section className="mt-10 text-center">
+      <h2 className="text-xs tracking-widest text-[#444]/70">MOCKUP</h2>
+
+      <div className="mt-4 space-y-6">
+        {mockups.map((src, i) => (
+          <figure key={`mockup-${src}-${i}`} className="mx-auto w-full max-w-3xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={`${work.title} mockup ${i + 1}`}
+              className="w-full rounded-2xl border border-[#e5e5e5] bg-white object-cover"
+              loading="lazy"
+            />
+          </figure>
+        ))}
+      </div>
+    </section>
+  );
+})()}
+
+
       {/* meta (roles / tools / client / links) */}
       {(raw.client || roles.length || tools.length || links.length) ? (
         <div className="mt-10 text-center">
