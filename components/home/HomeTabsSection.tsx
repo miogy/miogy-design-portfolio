@@ -1,8 +1,9 @@
 // components/home/HomeTabsSection.tsx
+// components/home/HomeTabsSection.tsx
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type TabKey = "introduction" | "about" | "archive";
 
@@ -11,45 +12,99 @@ type TabData = {
   label: string;
   kicker: string;
   title: string;
-  description?: string;
   descriptionLines?: string[];
+  description?: string;
   chips?: string[];
   bullets?: string[];
   href: string;
   cta: string;
 };
 
+type AboutData = {
+  intro: {
+    headline: string;
+    summary: string;
+    coreCompetency: string[];
+    skills: string[];
+    email?: string;
+    links?: { label: string; url: string }[];
+  };
+};
+
+function cleanList(arr?: string[]) {
+  return (arr ?? [])
+    .map((s) => String(s ?? "").replace(/^\s*-\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function splitToLines(text?: string) {
+  const t = (text ?? "").trim();
+  if (!t) return [];
+
+  // 이미 줄바꿈이 있으면 그대로
+  if (t.includes("\n")) {
+    return t
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  // 문장 단위로 가볍게 분리 시도 (너무 과하면 한 줄로)
+  const byDa = t.split(/(?<=다)\s+/).map((s) => s.trim()).filter(Boolean);
+  if (byDa.length >= 2) return byDa;
+
+  const byDot = t.split(/\. +/).map((s) => s.trim()).filter(Boolean);
+  if (byDot.length >= 2) return byDot.map((s) => (s.endsWith(".") ? s : `${s}.`));
+
+  return [t];
+}
+
 export default function HomeTabsSection() {
-  const tabs = useMemo<TabData[]>(
-    () => [
+  const [tab, setTab] = useState<TabKey>("introduction");
+  const [about, setAbout] = useState<AboutData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/about", { method: "GET" });
+        if (!res.ok) throw new Error(`Failed to load about data (${res.status})`);
+        const json = (await res.json()) as AboutData;
+        if (alive) setAbout(json);
+      } catch (e: any) {
+        if (alive) setError(e?.message ?? "Failed to load about data");
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const tabs: TabData[] = useMemo(() => {
+    if (!about) return [];
+
+    return [
       {
         key: "introduction",
         label: "Introduction",
         kicker: "소개",
-        title: "Designer / Studio operator",
-        descriptionLines: [
-          "패션 그래픽과 소재별 텍스타일 디자인을 바탕으로, 브랜드 디자인을 확장해 나아가는 그래픽 디자이너 양미옥입니다.",
-          "주로 프로모션 & 브랜드에서 시즌 기획–디자인–생산 핸들링까지 프린트 소재의 전 과정을 담당했습니다.",
-          "이후 아티스트 IP 기반으로 브랜드의 웹·UI와 온라인 콘텐츠 디자인 경험을 더하였고,",
-          "제품으로 출시되는 그래픽과 디지털 화면을 하나의 브랜드 경험으로 설계하는 디자인 프로세스를 지향합니다."],
-        chips: ["Textile & Print", "Key Visual", "Brand OS", "Web Contents"],
-        bullets:[
-          "시즌 그래픽·패턴 기획 및 핸드드로잉 그래픽, 생산 공정 이해 및 핸들링",
-          "프로젝트·일정 관리와 리딩 경험, 부서·협력사와의 원활한 커뮤니케이션",
-          "오프라인 매장·행사 지원 등 현장 경험을 바탕으로 한 실사용 관점의 디자인",
-          "Adobe, CLO 3D, Figma, 기본 웹 제작 활용가능",
-          "새로운 디지털 툴과 프로그램을 빠르게 학습해 업무에 적용하는 적응력"
-        ],
+        title: about.intro.headline,
+        descriptionLines: splitToLines(about.intro.summary),
+        chips: cleanList(about.intro.skills).slice(0, 6),
+        bullets: cleanList(about.intro.coreCompetency),
         href: "/about#intro",
         cta: "View details",
       },
       {
         key: "about",
         label: "About",
-        kicker: "VALUES",
-        title: "Clarity · Consistency · Care",
+        kicker: "ABOUT",
+        title: "More about Miogy",
         description:
-          "A calm white UI that highlights the work. I aim for clean structure, repeatable systems, and high usability across channels.",
+          "Career timeline, responsibilities, and achievements based on about.json.",
         href: "/about",
         cta: "Go to About",
       },
@@ -63,12 +118,31 @@ export default function HomeTabsSection() {
         href: "/work?category=archive",
         cta: "Open Archive",
       },
-    ],
-    []
-  );
+    ];
+  }, [about]);
 
-  const [tab, setTab] = useState<TabKey>("introduction");
   const current = tabs.find((t) => t.key === tab) ?? tabs[0];
+
+  // 로딩/에러 상태(콘텐츠 하드코딩 없이 최소 UI만)
+  if (error) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-5 pb-16 pt-14">
+        <div className="border-t border-[#e5e5e5] pt-10">
+          <p className="text-sm text-[#444]/85">Failed to load: {error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!about || !tabs.length || !current) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-5 pb-16 pt-14">
+        <div className="border-t border-[#e5e5e5] pt-10">
+          <p className="text-sm text-[#444]/85">Loading…</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="mx-auto w-full max-w-6xl px-5 pb-16 pt-14">
@@ -96,35 +170,47 @@ export default function HomeTabsSection() {
         </div>
 
         {/* Content */}
-        <div className="mt-6 rounded-2xl border border-[#e5e5e5] bg-white p-6">
+        <div className="mt-6 bg-white p-6">
           <p className="text-xs tracking-widest text-[#444]/70">{current.kicker}</p>
           <h3 className="mt-2 text-lg font-semibold text-[#222]">{current.title}</h3>
-          
-          <p className="mt-3 text-sm leading-relaxed text-[#444]/85">
 
-          {current.descriptionLines?.length ? (
-            current.descriptionLines.map((line, idx) => (
-              <span key={`${current.key}-desc-${idx}`}>
-                {line}
-                {idx !== current.descriptionLines!.length - 1 ? <br /> : null}
-              </span>
-            ))
+          <p className="mt-3 text-sm leading-relaxed text-[#444]/85">
+            {current.descriptionLines?.length ? (
+              current.descriptionLines.map((line, idx) => (
+                <span key={`${current.key}-desc-${idx}`}>
+                  {line}
+                  {idx !== current.descriptionLines!.length - 1 ? <br /> : null}
+                </span>
+              ))
             ) : (
               <>{current.description}</>
             )}
           </p>
 
+          {/* Chips */}
           {current.chips?.length ? (
             <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2">
               {current.chips.map((c) => (
                 <span key={c} className="text-sm font-medium text-[#444]/80">
-                <span className="text-[#444]/60">#</span>
-                 {c}
+                  <span className="text-[#444]/60">#</span> {c}
                 </span>
               ))}
             </div>
           ) : null}
 
+          {/* Bullets */}
+          {current.bullets?.length ? (
+            <ul className="mt-5 grid gap-2 md:grid-cols-2">
+              {current.bullets.map((b, idx) => (
+                <li
+                  key={`${current.key}-bullet-${idx}`}
+                  className="rounded-xl border border-[#ededed] bg-[#fafafa] p-3 text-sm leading-relaxed text-[#333]/90"
+                >
+                  {b}
+                </li>
+              ))}
+            </ul>
+          ) : null}
 
           <Link href={current.href} className="mt-6 inline-flex text-sm font-medium text-[#222]">
             <span className="border-b border-[#222]/70 pb-0.5 hover:border-[#222]">
@@ -136,4 +222,3 @@ export default function HomeTabsSection() {
     </section>
   );
 }
-
